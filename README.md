@@ -34,7 +34,7 @@ Traffic flow.
 Request -> Istio Ingress Gateway -> Gateway -> Virtual Service -> Service -> Pod
 
 ```bash
-kubectl apply -f deployment_ingress.yml
+envsubst < deployment_ingress.yml | kubectl apply -f -
 ```
 
 
@@ -42,7 +42,7 @@ kubectl apply -f deployment_ingress.yml
 *DestinationRule* defines the routing policies.
 
 ```bash
-kubectl apply -f deployment_ingress_multiple_versions.yml
+envsubst < deployment_ingress_multiple_versions.yml | kubectl apply -f -
 ```
 
 # Enable SSL termination for endpoints
