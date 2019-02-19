@@ -1,15 +1,11 @@
-FROM alpine:latest
+FROM python:2.7-slim as base
 
-MAINTAINER Björn Ramberg
+FROM base as builder
+RUN pip install --target=/install --trusted-host pypi.python.org Flask
 
-# Install specific version of apache web server
-RUN apk --update add apache2 && \
-    echo '<html><body>Hello World!</body></html>' > /var/www/localhost/htdocs/index.html && \
-    mkdir -p /run/apache2/
-
-# Expose the port 
-EXPOSE 80
-
-# Start the apache daemon and set it as the contianer entrypoint
-ENTRYPOINT ["httpd"]
-CMD ["-D", "FOREGROUND"]
+FROM base
+COPY --from=builder /install /usr/local/lib/python2.7/site-packages
+WORKDIR /app
+ADD /app/. /app
+ENV NAME World
+CMD ["python", "app.py"]

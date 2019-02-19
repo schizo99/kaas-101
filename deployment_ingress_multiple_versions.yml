@@ -7,6 +7,7 @@ metadata:
 spec:
   ports:
   - port: 80
+    targetPort: 4000
     name: http
   selector:
     app: testapp
@@ -15,6 +16,8 @@ apiVersion: networking.istio.io/v1alpha3
 kind: Gateway
 metadata:
   name: testapp-gateway
+  labels:
+    app: testapp
 spec:
   selector:
     istio: ingressgateway # use Istio default gateway implementation
@@ -24,29 +27,29 @@ spec:
       name: http
       protocol: HTTP
     hosts:
-    - "testapp.$INGRESS_HOST.xip.io"
+    - testapp.$INGRESS_HOST.xip.io
 ---
 apiVersion: networking.istio.io/v1alpha3
 kind: VirtualService
 metadata:
   name: testapp
+  labels:
+    app: testapp
 spec:
   hosts:
-  - "testapp.$INGRESS_HOST.xip.io"
+  - testapp.$INGRESS_HOST.xip.io
   gateways:
   - testapp-gateway
   http:
   - route:
     - destination:
-        port:
-          number: 80
         host: testapp-service
         subset: v1
-      weight: 50
+      weight: 75
     - destination:
         host: testapp-service
         subset: v2
-      weight: 50
+      weight: 25
 ---
 apiVersion: apps/v1beta1
 kind: Deployment
@@ -62,9 +65,12 @@ spec:
     spec:
       containers:
       - name: testapp
-        image: gcr.io/ikea-cloudfoundation-test/testapp:v1
+        image: gcr.io/$PROJECTNAME/testapp:v1
+        env:
+          - name: NAME
+            value: "Version 1"
         ports:
-        - containerPort: 80
+        - containerPort: 4000
           protocol: TCP
 ---
 apiVersion: apps/v1beta1
@@ -81,17 +87,25 @@ spec:
     spec:
       containers:
       - name: testapp
-        image: gcr.io/ikea-cloudfoundation-test/testapp:v2
+        image: gcr.io/$PROJECTNAME/testapp:v2
+        env:
+          - name: NAME
+            value: "Version 2"
         ports:
-        - containerPort: 80
+        - containerPort: 4000
           protocol: TCP
 ---
 apiVersion: networking.istio.io/v1alpha3
 kind: DestinationRule
 metadata:
   name: testapp-destination
+  labels:
+    app: testapp
 spec:
   host: testapp-service # interpreted as testapp.foo.svc.cluster.local
+  trafficPolicy:
+    tls:
+      mode: ISTIO_MUTUAL
   subsets:
   - name: v1
     labels:
