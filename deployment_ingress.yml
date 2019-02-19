@@ -7,6 +7,7 @@ metadata:
 spec:
   ports:
   - port: 80
+    targetPort: 4000
     name: http
   selector:
     app: testapp
@@ -55,7 +56,7 @@ spec:
     spec:
       containers:
       - name: testapp
-        image: gcr.io/ikea-cloudfoundation-test/testapp:v1
+        image: gcr.io/$PROJECTNAME/testapp:v1
         ports:
-        - containerPort: 80
+        - containerPort: 4000
           protocol: TCP
