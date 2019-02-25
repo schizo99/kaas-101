@@ -1,13 +1,23 @@
-from flask import Flask
+from flask import Flask, request
 import os
 import socket
 
 app = Flask(__name__)
 
+def shutdown_server():
+    func = request.environ.get('werkzeug.server.shutdown')
+    if func is None:
+        raise RuntimeError('Not running with the Werkzeug Server')
+    func()
+
 @app.route("/")
 def hello():
     html = "<h3>Hello {name}!</h3> <b>Hostname:</b> {hostname}<br/>"
     return html.format(name=os.getenv("NAME", "world"), hostname=socket.gethostname())
+
+@app.route("/die")
+def die():
+    shutdown_server()
 
 @app.route("/health")
 def health():
