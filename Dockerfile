@@ -1,7 +1,7 @@
 FROM python:2.7-alpine as base
 
 FROM base as builder
-RUN apk update && apk upgrade && pip install --target=/install --trusted-host pypi.python.org Flask
+RUN pip install --target=/install --trusted-host pypi.python.org Flask
 
 FROM base
 COPY --from=builder /install /usr/local/lib/python2.7/site-packages
