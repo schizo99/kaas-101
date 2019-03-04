@@ -1,4 +1,4 @@
-FROM python:2.7-alpine as base
+FROM python:3.6-alpine as base
 
 FROM base as builder
 RUN pip install --target=/install --trusted-host pypi.python.org Flask
