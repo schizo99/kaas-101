@@ -19,6 +19,11 @@ def hello():
 def die():
     shutdown_server()
 
+@app.route("/mem")
+def mem():
+    #Let's eat up all memory
+    [f for f in range(1024**1024)]
+
 @app.route("/health")
 def health():
     return "ok"
